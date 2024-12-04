@@ -1,0 +1,688 @@
+services:
+  # QBFT
+  validator1:
+    image: hyperledger/besu:latest
+    command: [ "--config-file=/opt/besu/common-config.toml",
+                "--identity=validator1",
+                "--p2p-host=10.42.0.2",
+                "--p2p-port=30303"]
+    volumes:
+      - ./configs/validators-config.toml:/opt/besu/common-config.toml:ro
+      - ./genesis.json:/opt/besu/genesis.json:ro
+      - ./keys/validator1/key:/opt/besu/key:ro
+      - validator1-data:/opt/besu/data
+    ports:
+      - "8545:8545"
+      - "30303:30303/tcp"
+      - "30303:30303/udp"
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.2
+
+  validator2:
+    image: hyperledger/besu:latest
+    command: [ "--config-file=/opt/besu/common-config.toml",
+                "--identity=validator2",
+                "--bootnodes=enode://ad83ac93fcc30a30f3e1bb6467623e45719167be50d13dccd8361cbca478cb540069869d1bae16de0f8b17a28f26f1c6c4dc12e71f240b366c6ff6f02f3fb93e@10.42.0.2:30303",
+                "--p2p-host=10.42.0.3",
+                "--p2p-port=30304" ]
+    volumes:
+      - ./configs/validators-config.toml:/opt/besu/common-config.toml:ro
+      - ./genesis.json:/opt/besu/genesis.json:ro
+      - ./keys/validator2/key:/opt/besu/key:ro
+      - validator2-data:/opt/besu/data
+    ports:
+      - "8546:8545"
+      - "30304:30304/tcp"
+      - "30304:30304/udp"
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.3
+
+  validator3:
+    image: hyperledger/besu:latest
+    command: [ "--config-file=/opt/besu/common-config.toml",
+                "--identity=validator3",
+                "--bootnodes=enode://ad83ac93fcc30a30f3e1bb6467623e45719167be50d13dccd8361cbca478cb540069869d1bae16de0f8b17a28f26f1c6c4dc12e71f240b366c6ff6f02f3fb93e@10.42.0.2:30303",
+                "--p2p-host=10.42.0.4",
+                "--p2p-port=30305" ]
+    volumes:
+      - ./configs/validators-config.toml:/opt/besu/common-config.toml:ro
+      - ./genesis.json:/opt/besu/genesis.json:ro
+      - ./keys/validator3/key:/opt/besu/key:ro
+      - validator3-data:/opt/besu/data
+    ports:
+      - "8547:8545"
+      - "30305:30305/tcp"
+      - "30305:30305/udp"
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.4
+
+  validator4:
+    image: hyperledger/besu:latest
+    command: [ "--config-file=/opt/besu/common-config.toml",
+                "--identity=validator4",
+                "--bootnodes=enode://ad83ac93fcc30a30f3e1bb6467623e45719167be50d13dccd8361cbca478cb540069869d1bae16de0f8b17a28f26f1c6c4dc12e71f240b366c6ff6f02f3fb93e@10.42.0.2:30303",
+                "--p2p-host=10.42.0.5",
+                "--p2p-port=30306" ]
+    volumes:
+      - ./configs/validators-config.toml:/opt/besu/common-config.toml:ro
+      - ./genesis.json:/opt/besu/genesis.json:ro
+      - ./keys/validator4/key:/opt/besu/key:ro
+      - validator4-data:/opt/besu/data
+    ports:
+      - "8548:8545"
+      - "30306:30306/tcp"
+      - "30306:30306/udp"
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.5
+  
+  traefik:
+    image: traefik:v2.0
+    ports:
+      - "80:80"
+      - "8081:8080"
+    volumes:
+      - ./configs/traefik.yaml:/traefik.yaml
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.6
+  cop:
+    image: tokend/traefik-cop:1.0.0
+    restart: unless-stopped
+    environment:
+      - KV_VIPER_FILE=/config.yaml
+    volumes:
+      - ./configs/cop.yaml:/config.yaml
+    entrypoint: sh -c "traefik-cop run"
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.7
+
+  upstream:
+    image: nginx
+    restart: unless-stopped
+    volumes:
+     - ./configs/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8000:80"
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.10
+
+  faucet:
+    image: registry.gitlab.com/tokene/projects/lockton-one/faucet:bb6c6c07d55a1672d046405ab16aa03c2b4c7020
+    container_name: faucet
+    restart: always
+    depends_on:
+      validator1:
+        condition: service_started
+    environment:
+      KV_VIPER_FILE: '/config.yaml'
+    ports:
+      - 7891:80
+    entrypoint: sh -c "faucet run service"
+    volumes:
+      - ./configs/faucet.yaml:/config.yaml
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.9
+
+  web-client:
+    depends_on:
+      validator1:
+        condition: service_started
+      keyserver-svc:
+        condition: service_started
+    hostname: web-client
+    image: registry.gitlab.com/tokene/projects/lockton-one/web-client-lockton-one:f0e0a7c1df5bf12558fda1a729499a3c63fcf7c5
+    volumes:
+      - ./configs/client.js:/usr/share/nginx/html/static/env.js
+      - ./configs/client.js:/usr/share/nginx/html/env.js
+    ports:
+      - 8070:80
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.11
+
+  vault: 
+    image: vault:1.13.2
+    hostname: vault
+    ports:
+      - 8200:8200
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=my-token
+      - VAULT_SKIP_VERIFY=true
+      - VAULT_ADDR=http://vault:8200
+      - VAULT_API_ADDR=http://vault:8200
+      - VAULT_ADDRESS=http://vault:8200
+    volumes:
+      - ./configs/.vault/config:/vault/config
+      - ./configs/.vault/policies:/vault/policies
+      - ./configs/.vault/scripts:/vault/scripts
+      - ./configs/.vault/plugins:/vault/plugins
+      - ./configs/.vault/data:/vault/data
+      - ./configs/.vault/file:/vault/file:rw  
+    cap_add:
+      - IPC_LOCK  
+    command: ./vault/scripts/init.sh
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.12
+
+  # Contracts
+  core-contracts:
+    depends_on:
+      - validator1
+      - vault
+    hostname: contracts
+    image: registry.gitlab.com/tokene/core/core-contracts:ea463d4966c9a35b1bbe60fbe73fe333e9b6937c
+    command: deploy-dev
+    volumes:
+      - ./envs/core-contracts.env:/tokene-contracts/.env
+      - ./configs/core-contracts.json:/tokene-contracts/config.json
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.13
+
+  token-contracts:
+    depends_on:
+      - validator1
+      - vault
+    image: registry.gitlab.com/tokene/projects/lockton-one/token-factory-contracts:6a6ecfb06ab8968f3440deb92746d97bd39cc7da
+    command: deploy-dev
+    volumes:
+      - ./envs/token-contracts.env:/tokene-token-factory-contracts/.env
+      - ./configs/token-contracts.json:/tokene-token-factory-contracts/config.json
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.14
+
+  kyc-contracts:
+    depends_on:
+      - validator1
+      - vault
+    image: registry.gitlab.com/tokene/kyc/kyc-requests-contracts:871811fb46303397ed4f91ae80abb24c6512d4a8
+    command: deploy-dev
+    volumes:
+      - ./envs/kyc-contracts.env:/tokene-kyc-requests-contracts/.env
+      - ./configs/kyc-contracts.json:/tokene-kyc-requests-contracts/config.json
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.15
+  
+  allowed-registry-contracts:
+    depends_on:
+      - validator1
+      - vault
+    image: registry.gitlab.com/tokene/projects/lockton-one/allowed-contract-registry:108bd184d9653a5aa9a885acc7dc3ca0be30bdcd
+    command: deploy-dev
+    volumes:
+      - ./envs/allowed-contract-registry.env:/tokene-contracts/.env
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.16
+
+  account-abstraction-contracts:
+    depends_on:
+      - validator1
+      - vault
+    image: registry.gitlab.com/tokene/projects/lockton-one/account-abstraction:5021cc8eacbff5e041f13e9e431ca88c2c9e0e72
+    command: deploy-with-one-min-account
+    volumes:
+      - ./envs/account-abstraction-contracts.env:/account-abstraction-contracts/.env
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.17
+
+  #Auth part
+  auth-db:
+    image: postgres:13.6
+    hostname: auth-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=auth
+      - POSTGRES_PASSWORD=auth
+      - POSTGRES_DB=auth
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - auth-data:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.18
+      
+  nonce-auth:
+    depends_on:
+      cop:
+        condition: service_started
+      auth-db:
+        condition: service_healthy
+      doorman:
+        condition: service_started
+    restart: always
+    image: registry.gitlab.com/tokene/nonce-auth-svc:6002d3590a48bc6c7a689e4088d7dff7540317cd
+    container_name: 'nonce-auth'
+    environment:
+        KV_VIPER_FILE: '/config.yaml'
+    ports:
+      - 8001:80
+    entrypoint: sh -c "nonce-auth-svc migrate up && nonce-auth-svc run service"
+    volumes:
+      - ./configs/nonce-auth.yaml:/config.yaml
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.19
+
+  #Doorman part
+  doorman:
+    image: registry.gitlab.com/tokene/doorman:v0.1.7
+    container_name: 'doorman'
+    depends_on:
+      cop:
+        condition: service_started
+    restart: always
+    environment:
+        KV_VIPER_FILE: '/config.yaml'
+    ports:
+      - 8002:80
+    command: run service
+    volumes:
+      - ./configs/doorman.yaml:/config.yaml
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.20
+
+  #Blob part
+  blob-db:
+    image: postgres:13.6
+    hostname: blobs-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=storage
+      - POSTGRES_PASSWORD=storage
+      - POSTGRES_DB=storage
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - blob-data:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.21
+
+  blob-svc:
+    restart: always
+    depends_on:
+      blob-db:
+        condition: service_healthy
+      cop:
+        condition: service_started
+    image: registry.gitlab.com/tokene/blob-svc:995b374c4e86898ce4be03a39042f773c0b6a040
+    container_name: 'blob-svc'
+    environment:
+        KV_VIPER_FILE: '/config.yaml'
+    ports:
+      - 8003:80
+    entrypoint: sh -c "blob-svc migrate up && blob-svc run service"
+    volumes:
+      - ./configs/blobs.yaml:/config.yaml
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.22
+
+  keyserver-db:
+    image: postgres:13.6
+    hostname: keyserver-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=keyserver
+      - POSTGRES_PASSWORD=keyserver
+      - POSTGRES_DB=keyserver
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - keyserver-data:/var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.23
+
+  keyserver-svc:
+    restart: always
+    depends_on:
+      keyserver-db:
+        condition: service_healthy
+      cop:
+        condition: service_started
+    image: registry.gitlab.com/tokene/projects/lockton-one/keyserver-svc:8168fa5cca5d9985097e0f72d33313bf0ad70ecb
+    container_name: 'keyserver-svc'
+    environment:
+      KV_VIPER_FILE: '/config.yaml'
+    entrypoint: sh -c "keyserver-svc migrate up && keyserver-svc run service"
+    ports:
+      - 8011:80
+    volumes:
+      - ./configs/keyserver.yaml:/config.yaml
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.24
+
+# Notificaions
+  # ---- Email-sender service ----
+  email-sender:
+    image: registry.gitlab.com/tokend/notifications/email-mailjet-svc:5b0a9cb3ffe88f1cf4c0c28b33735d569c4de167
+    restart: unless-stopped
+    environment:
+      - KV_VIPER_FILE=/config.yaml
+    volumes:
+      - ./configs/email-sender.yaml:/config.yaml
+    entrypoint: sh -c "email-mailjet-svc run service"
+    depends_on:
+      notifications-router:
+        condition: service_started
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.25
+
+  notifications-router_db:
+    image: postgres:alpine3.17
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=notifications-router
+      - POSTGRES_PASSWORD=notifications-router
+      - POSTGRES_DB=notifications-router
+      - PGDATA=/pgdata
+    volumes:
+      - notifications-router-data:/pgdata
+    ports:
+      - "5410:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U notifications-router" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.26
+
+  notifications-router: 
+    image: registry.gitlab.com/tokene/projects/lockton-one/notifications-router-svc:c5a5bcb920c6808308537074d7c733ecde8c1000
+    restart: unless-stopped
+    environment:
+      - KV_VIPER_FILE=/config.yaml
+    volumes:
+      - ./configs/notifications-router.yaml:/config.yaml
+    ports:
+      - "8090:80"
+    entrypoint: sh -c "notifications-router-svc migrate up && notifications-router-svc run service"
+    depends_on:
+      notifications-router_db:
+        condition: service_healthy
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.27
+
+
+# Issuer
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-p", "6379", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.28
+
+  issuer_db:
+    image: postgres:14-alpine
+    hostname: issuer-db
+    environment:
+      - POSTGRES_USER=issuer
+      - POSTGRES_PASSWORD=issuer
+      - POSTGRES_DB=issuer
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - issuer-data:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.29
+
+  issuer:
+    image: ghcr.io/rarimo/issuernode:v3.3.2
+    restart: unless-stopped
+    env_file:
+      - ./envs/issuer.env
+    ports:
+      - "3001:3001"
+    entrypoint: sh -c "apk add curl && sleep 4s && ./migrate && ./platform"
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.30
+
+  #Issuer-integration
+  issuer-integration-db:
+    image: postgres:13.6
+    hostname: issuer-integration-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=issuer-integration
+      - POSTGRES_PASSWORD=issuer-integration
+      - POSTGRES_DB=issuer-integration
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports: 
+     - "5445:5432"
+    volumes:
+      - issuer-integration-data:/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.31
+  
+  issuer-integration-svc:
+    restart: always
+    depends_on:
+      issuer-integration-db:
+        condition: service_healthy
+      cop:
+        condition: service_started
+    image: registry.gitlab.com/tokene/projects/lockton-one/polygonid-issuer-integration:2f50fd8f9b96e82cc342599d7400da3732f289bf
+    container_name: 'issuer-integration-svc'
+    environment:
+      KV_VIPER_FILE: '/config.yaml'
+    entrypoint: sh -c "polygonid-integration-svc migrate up && polygonid-integration-svc run service"
+    volumes:
+      - ./configs/issuer-integration.yaml:/config.yaml
+    ports:
+      - "8099:80"
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.32
+
+#The graph part
+
+  graph-node:
+    image: graphprotocol/graph-node
+    ports:
+      - '9000:8000'
+      - '9001:8001'
+      - '9020:8020'
+      - '9030:8030'
+      - '9040:8040'   
+    depends_on:
+      - ipfs
+      - graph-db
+    environment:
+      postgres_host: graph-db
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: 'ipfs:5001'
+      ethereum: 'mainnet:http://validator1:8545/'
+      GRAPH_LOG: info
+      ETHEREUM_TRACE_STREAM_STEP_SIZE: 10
+      DISABLE_BLOCK_INGESTOR: "true"
+      GRAPH_ETHEREUM_MAX_BLOCK_RANGE_SIZE: 100
+      GRAPH_ETHEREUM_MAX_EVENT_ONLY_RANGE: 50
+      GRAPH_ETHEREUM_CLEANUP_BLOCKS: "true"
+      GRAPH_ETHEREUM_FETCH_TXN_RECEIPTS_IN_BATCHES: "true"
+      GRAPH_ETHEREUM_TARGET_TRIGGERS_PER_BLOCK_RANGE: 200
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.33
+
+  ipfs:
+    image: ipfs/go-ipfs:v0.10.0
+    ports:
+      - '5001:5001'
+      - '4001:4001'
+    volumes:
+      - ./data/ipfs:/data/ipfs
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.34
+
+  graph-db:
+    image: postgres
+    command:
+      [
+        "postgres",
+        "-cshared_preload_libraries=pg_stat_statements"
+      ]
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+      PGDATA: "/var/lib/postgresql/data"
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data    
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.35
+
+  core-graph:
+    depends_on:
+      vault:
+        condition: service_started
+    image: registry.gitlab.com/tokene/core/core-graph:6928b00ba3176cbbfb7196bc36adb9462206753a
+    command: "bootstrap"
+    environment:
+      - VAULT_ENDPOINT=http://vault:8200
+      - VAULT_TOKEN=my-token
+      - VAULT_CONFIG_PATH=cubbyhole/data/core-contracts
+      - GRAPH_NODE_ENDPOINT=http://graph-node:8020
+      - IPFS_ENDPOINT=http://ipfs:5001
+      - GRAPH_VERSION=1.0.0
+    volumes:
+      - ./envs/core-graph.env:/tokene-graph/.env
+    ports:
+      - "8101:80"
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.36
+
+# RPC
+  bundler:
+    image: ghcr.io/candidelabs/voltaire/voltaire-bundler:latest
+    container_name: bundler
+    command:
+      [
+        "--bundler_secret", "0x897368deaa9f3797c02570ef7d3fa4df179b0fc7ad8d8fc2547d04701604eb72",
+        "--rpc_url", "0.0.0.0",
+        "--chain_id", "9", 
+        "--ethereum_node_url", "http://validator1:8545",
+        "--verbose", 
+        "--debug",
+        "--unsafe",
+      ]
+    ports: 
+      - 3000:3000
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.37
+
+  rpc-wrapper:
+    restart: always
+    depends_on:
+      cop:
+        condition: service_started
+    image: registry.gitlab.com/tokene/projects/lockton-one/rpc-wrapper-svc:87cdc3219f2cd7ed024b6e69ff1b57d99ff95110 
+    environment:
+      KV_VIPER_FILE: '/config.yaml'
+    entrypoint: sh -c "rpc-wrapper-svc run service"
+    ports:
+      - 8554:80
+    volumes:
+      - ./configs/rpc-wrapper.yaml:/config.yaml
+    networks:
+      qbft_testnet:
+        ipv4_address: 10.42.0.38
+
+networks:
+  qbft_testnet:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.42.0.0/16
+          gateway: 10.42.0.1
+
+volumes:
+  validator1-data:
+    driver_opts:
+      type: "local"
+      o: "bind,nolock,soft,rw,uid=1000,gid=1000"
+      device: $PWD/data/validator1
+  validator2-data:
+    driver_opts:
+      type: "local"
+      o: "bind,nolock,soft,rw,uid=1000,gid=1000"
+      device: $PWD/data/validator2
+  validator3-data:
+    driver_opts:
+      type: "local"
+      o: "bind,nolock,soft,rw,uid=1000,gid=1000"
+      device: $PWD/data/validator3
+  validator4-data:
+    driver_opts:
+      type: "local"
+      o: "bind,nolock,soft,rw,uid=1000,gid=1000"
+      device: $PWD/data/validator4
+  blob-data:
+  issuer-data:
+  issuer-integration-data:
+  auth-data:
+  keyserver-data:
+  graph-data:
+  ipfs-data:
+  notifications-router-data:

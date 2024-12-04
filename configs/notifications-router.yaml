@@ -1,0 +1,42 @@
+log:
+  level: "info"
+  disable_sentry: true
+
+client:
+  endpoint: "http://traefik"
+
+keys:
+  signer: "..."
+
+doorman:
+  skip_sign_check: true
+
+notificator:
+  default_channels_priority:
+    - "email"
+    - "push"
+    - "sms"
+  default_locale: "en" # Optional
+
+db:
+  url: "postgres://notifications-router:notifications-router@notifications-router_db/notifications-router?sslmode=disable"
+
+listener:
+  addr: ":80"
+
+registration_api:
+  addr: ":8080"
+
+s3:
+  access_key: 
+  secret_key: 
+  endpoint: 
+  region:  # for non-aws endpoints might be random, but do not leave it empty
+  bucket:
+  
+cop:
+  disabled: false 
+  endpoint: "http://cop"
+  upstream: "http://notifications-router"
+  service_name: "notifications-router-svc"
+  service_port: 80

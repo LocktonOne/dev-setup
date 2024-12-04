@@ -1,0 +1,29 @@
+log:
+  level: debug
+  disable_sentry: true
+
+db:
+  url: postgresql://auth:auth@auth-db/auth?sslmode=disable
+
+listener:
+  addr: :80
+
+cop:
+  disabled: false
+  endpoint: "http://cop"
+  upstream: "http://nonce-auth"
+  service_name: nonce-auth
+  service_port: 80
+  service_prefix: "/integrations/nonce-auth-svc"
+
+doorman:
+  service_url: http://traefik/integrations/doorman
+
+service:
+  token_expire_time: 4h
+  token_key: "0x61dbf961f608d1d0d31bfde550505d53cf63f85ab4cb938159a11aacecc29b3d"
+  nonce_expire_time: 1m
+  refresh_token_expire_time: 8h
+
+admins:
+  admins: ["0x750Bd531CEA1f68418DDF2373193CfbD86A69058"]

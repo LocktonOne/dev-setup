@@ -1,0 +1,12 @@
+genesis-file="/opt/besu/genesis.json"
+data-path="/opt/besu/data"
+node-private-key-file="/opt/besu/key"
+rpc-http-enabled=true
+rpc-http-api=["ETH","QBFT","WEB3", "DEBUG", "NET"]
+rpc-http-host=["0.0.0.0"]
+rpc-http-port="8545"
+host-allowlist=["*"]
+rpc-http-cors-origins=["*"]
+tx-pool="legacy"
+tx-pool-limit-by-account-percentage=1.0
+tx-pool-max-size="1000000"

@@ -1,0 +1,24 @@
+log:
+  level: "debug"
+  disable_sentry: true
+
+listener:
+  addr: ":80"
+
+mailjet:
+  public_api_key: "42b8d912de9d1048f6f98e724ec6a846"
+  private_api_key: "f6fd4148a778fe8d7c497b03a19e4c43"
+  from_email: "anastasiia.lishchenko@gmail.com"
+
+notificator:
+  channel: "email"
+  register_endpoint: "http://notifications-router:8080/services"
+  url: "http://notifications-router:8080"
+  upstream: "http://email-sender"
+
+cop:
+  disabled: true
+  endpoint: "http://cop"
+  upstream: "http://email-sender"
+  service_name: email-mailjet-svc
+  service_port: 80

@@ -1,0 +1,33 @@
+
+log:
+  level: debug
+  disable_sentry: true
+
+db:
+  url: postgresql://issuer-integration:issuer-integration@issuer-integration-db/issuer-integration?sslmode=disable
+
+listener:
+  addr: :80
+
+issuer:
+  endpoint: "http://issuer:3001"
+  username: "user"
+  password: "pass"
+
+network:
+  rpc_url: http://validator1:8545/
+  private_key: ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 # without 0x
+  gas_limit: 30000000
+  network: qbft
+  chain_id: 9
+
+cop:
+  disabled: false
+  endpoint: "http://cop"
+  upstream: "http://issuer-integration-svc"
+  service_name: polygonid-integration-svc
+  service_prefix: "/integrations/polygonid-issuer-integration"
+  service_port: 80
+
+doorman:
+  service_url: "http://doorman/integrations/doorman"

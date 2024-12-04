@@ -1,0 +1,11 @@
+{
+    "projectName": "LocktoneOne",
+    "roles": {},
+    "addresses": {},
+    "constants": {
+      "DURATION": {
+        "value": "86400",
+        "type": "uint256"
+      }
+    }
+  }

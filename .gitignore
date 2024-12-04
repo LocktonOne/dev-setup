@@ -1,0 +1,15 @@
+# Ignore data of validators
+/data/validator1/*
+/data/validator2/*
+/data/validator3/*
+/data/validator4/*
+
+/data/ipfs/
+/data/postgres/
+
+/configs/.vault
+node_modules
+
+!/**/.gitkeep
+
+.DS_Store

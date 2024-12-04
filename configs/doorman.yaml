@@ -1,0 +1,28 @@
+log:
+  disable_sentry: true
+  level: debug
+
+listener:
+  addr: :80
+
+cop:
+  disabled: false
+  endpoint: "http://cop"
+  upstream: "http://doorman"
+  service_name: doorman
+  service_prefix: "/integrations/doorman"
+  service_port: 80
+
+vault:
+  endpoint: "http://vault:8200"
+  token: "my-token"
+  mount_path: "cubbyhole"
+  secret_path: "core-contracts"
+
+eth_rpc:
+  client: "http://validator1:8545"
+
+service:
+  token_expire_time: 4h
+  token_key: "0x61dbf961f608d1d0d31bfde550505d53cf63f85ab4cb938159a11aacecc29b3d"
+  refresh_token_expire_time: 24h

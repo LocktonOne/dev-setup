@@ -1,0 +1,30 @@
+log:
+  level: info
+  disable_sentry: true
+
+db:
+  url: postgresql://storage:storage@blob-db/storage?sslmode=disable
+
+listener:
+  addr: :80
+
+cop:
+  disabled: false
+  endpoint: "http://cop"
+  upstream: "http://blob-svc"
+  service_prefix: "/integrations/storage"
+  service_name: blob-svc
+  service_port: 80
+
+aws:
+  endpoint: ""
+  force_path_style: true
+  access_key: ""
+  secret_key: ""
+  bucket: ""
+  region: ""
+  expiration: "1h"
+  ssldisable: true
+
+doorman:
+  service_url: http://traefik/integrations/doorman

@@ -1,0 +1,24 @@
+log:
+  disable_sentry: true
+
+listener:
+  addr: :80
+
+eth_rpc:
+  endpoint: "http://validator1:8545"
+
+nonce_auth_svc:
+  endpoint: "http://nonce-auth/integrations/nonce-auth-svc/created_at"
+
+doorman:
+  service_url: "http://doorman/integrations/doorman"
+
+signer:
+  eth_signer: "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63"
+
+cop:
+  disabled: false
+  endpoint: "http://cop"
+  upstream: "http://faucet"
+  service_name: faucet
+  service_port: 80

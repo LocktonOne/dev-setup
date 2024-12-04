@@ -1,0 +1,108 @@
+{
+  "config" : {
+    "chainId" : 9,
+    "homesteadBlock": 0,
+    "eip150Block": 0,
+    "eip150Hash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "eip155Block": 0,
+    "eip158Block": 0,
+    "daoForkBlock": 0,
+    "frontierBlock": 0,
+    "byzantiumBlock": 0,
+    "constantinopleBlock": 0,
+    "petersburgBlock": 0,
+    "muirGlacierBlock": 0,
+    "istanbulBlock": 0,
+    "berlinBlock": 0,
+    "londonBlock": 0,
+    "mergeNetsplitBlock": 0,
+    "shanghaiTime": 0,
+    "cancunTime" : 0,
+    "zeroBaseFee" : true,
+    "qbft" : {
+      "blockperiodseconds" : 1,
+      "epochlength" : 30000,
+      "requesttimeoutseconds" : 2
+    }
+  },
+  "nonce" : "0x0",
+  "timestamp" : "0x58ee40ba",
+  "gasLimit" : "0x1c9c380",
+  "difficulty" : "0x1",
+  "mixHash" : "0x63746963616c2062797a616e74696e65206661756c7420746f6c6572616e6365",
+  "coinbase" : "0x0000000000000000000000000000000000000000",
+  "alloc" : {
+    "0000000000000000000000000000000000000000": {
+      "balance": "0x1"
+    },
+    "8a91dc2d28b689474298d91899f0c1baf62cb85b": {
+      "balance": "0x4B3B4CA85A86C47A098A224000000000"
+    },
+    "de03a0b5963f75f1c8485b355ff6d30f3093bde7": {
+      "balance": "0x4B3B4CA85A86C47A098A224000000000"
+    },
+    "52312AD6f01657413b2eaE9287f6B9ADaD93D5FE": {
+      "balance": "0x4B3B4CA85A86C47A098A224000000000"
+    },
+    "36615Cf349d7F6344891B1e7CA7C72883F5dc049": {
+      "balance": "0x4B3B4CA85A86C47A098A224000000000"
+    },
+    "a61464658AfeAf65CccaaFD3a512b69A83B77618": {
+      "balance": "0x4B3B4CA85A86C47A098A224000000000"
+    },
+    "0D43eB5B8a47bA8900d84AA36656c92024e9772e": {
+      "balance": "0x4B3B4CA85A86C47A098A224000000000"
+    },
+    "A13c10C0D5bd6f79041B9835c63f91de35A15883": {
+      "balance": "0x4B3B4CA85A86C47A098A224000000000"
+    },
+    "8002cD98Cfb563492A6fB3E7C8243b7B9Ad4cc92": {
+      "balance": "0x4B3B4CA85A86C47A098A224000000000"
+    },
+    "4F9133D1d3F50011A6859807C837bdCB31Aaab13": {
+      "balance": "0x4B3B4CA85A86C47A098A224000000000"
+    },
+    "bd29A1B981925B94eEc5c4F1125AF02a2Ec4d1cA": {
+      "balance": "0x4B3B4CA85A86C47A098A224000000000"
+    },
+    "edB6F5B4aab3dD95C7806Af42881FF12BE7e9daa": {
+      "balance": "0x4B3B4CA85A86C47A098A224000000000"
+    },
+    "e706e60ab5Dc512C36A4646D719b889F398cbBcB": {
+      "balance": "0x4B3B4CA85A86C47A098A224000000000"
+    },
+    "E90E12261CCb0F3F7976Ae611A29e84a6A85f424": {
+      "balance": "0x4B3B4CA85A86C47A098A224000000000"
+    },
+    "e706e60ab5dc512c36a4646d719b889f398cbbcb": {
+      "balance": "0x4B3B4CA85A86C47A098A224000000000"
+    },
+    "fe3b557e8fb62b89f4916b721be55ceb828dbd73" : {
+      "privateKey" : "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63",
+      "comment" : "private key and this comment are ignored.  In a real chain, the private key should NOT be stored",
+      "balance" : "0xad78ebc5ac6200000"
+    },
+    "627306090abaB3A6e1400e9345bC60c78a8BEf57" : {
+      "privateKey" : "c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3",
+      "comment" : "private key and this comment are ignored.  In a real chain, the private key should NOT be stored",
+      "balance" : "90000000000000000000000"
+    },
+    "f17f52151EbEF6C7334FAD080c5704D77216b732" : {
+      "privateKey" : "ae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f",
+      "comment" : "private key and this comment are ignored.  In a real chain, the private key should NOT be stored",
+      "balance" : "90000000000000000000000"
+    },
+    "da6c0ca76e69b32c71301356043fb56d702dfb3d" : {
+      "mnemonic" : "exit warm sadness vault clip rent educate pluck gentle vehicle news verb",
+      "comment" : "mnemonic and this comment are ignored.  In a real chain, the private key should NOT be stored",
+      "balance" : "90000000000000000000000"
+    }
+  },
+  "extraData" : "0xf87aa00000000000000000000000000000000000000000000000000000000000000000f85494065f139d8a49e9926232cc4435159024cb5064fc940eb968de631abc65322ecdca5dfdf9c6296e52f494543d3796700ee35803a1c43562a69fec08e1e4239420c5edbcf6263cd9e30df395a2b914f6e939b9bac080c0",
+  "number": "0x0",
+  "gasUsed": "0x0",
+  "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "baseFeePerGas": "0x1",
+  "excessBlobGas": "0x0",
+  "blobGasUsed": "0x0"
+}

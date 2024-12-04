@@ -1,0 +1,31 @@
+log:
+  disable_sentry: true
+  level: debug
+
+db:
+  url: postgresql://keyserver:keyserver@keyserver-db/keyserver?sslmode=disable
+
+listener:
+  addr: :80
+
+cop:
+  disabled: false
+  endpoint: "http://cop"
+  upstream: "http://keyserver-svc"
+  service_prefix: "/integrations/keyserver-svc"
+  service_name: keyserver-svc
+  service_port: 80
+
+wallets:
+  disable_confirm: false
+
+doorman:
+  service_url: "http://doorman/integrations/doorman"
+
+notificator:
+  disabled: false
+  client_router: http://localhost:8000
+  endpoint: http://traefik/integrations/notifications
+
+tfa_params:
+  digits: 6

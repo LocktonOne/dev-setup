@@ -1,0 +1,43 @@
+{
+    "projectName": "LocktoneOne",
+    "roles": {
+      "CORPORATE": {
+        "allow": [
+          {
+            "resource": "TOKEN_FACTORY_RESOURCE",
+            "permissions": ["CREATE", "EXECUTE"]
+          },
+          {
+            "resource": "TERC20",
+            "permissions": ["MINT"]
+          }
+        ]
+      },
+      "VERIFIED": {
+        "allow": [
+          {
+            "resource": "TERC20",
+            "permissions": ["SPEND", "RECEIVE"]
+          }
+        ]
+      },
+      "ADMIN": {
+        "allow": [
+          {
+            "resource": "*",
+            "permissions": ["*"]
+          }
+        ]
+      }   
+    },
+
+    "addresses": {
+      "0x627306090abaB3A6e1400e9345bC60c78a8BEf57": ["MASTER"]
+    },
+    "constants": {
+      "DURATION": {
+        "value": "86400",
+        "type": "uint256"
+      }
+    }
+  }

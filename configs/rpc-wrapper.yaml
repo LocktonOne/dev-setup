@@ -1,0 +1,22 @@
+log:
+  level: debug
+  disable_sentry: true
+
+listener:
+  addr: :80
+
+vault:
+  endpoint: "http://vault:8200"
+  token: "my-token"
+  mount_path: "cubbyhole"
+  secret_path: "allowed-contract-registry"
+
+eth_rpc:
+  client: "http://validator1:8545"
+
+cop:
+  disabled: true
+  endpoint: "http://cop"
+  upstream: "http://rpc-wrapper-svc"
+  service_name: rpc-wrapper-svc
+  service_port: 80
